@@ -8,32 +8,20 @@ pub fn toboggan_trajectory() {
     const WIDTH: usize = 31;
 
     let mut index: usize = 0;
-    let mut count = 0;
-    for line in file.lines() {
-        match line.chars().nth(index) {
-            Some(TREE) => count += 1,
-            _ => ()
-        }
-        index = (index + 3) % WIDTH;
-    }
+    let mut count =
+        file.lines()
+            .zip((0..WIDTH).cycle().step_by(3))
+            .filter(|(line, i)| line.chars().nth(*i) == Some(TREE))
+            .count();
     println!("Total trees: {}", count);
 
     let (a, b, c, d, e) = file.lines()
         .enumerate()
         .map(|(i, line)| {
-            // one
             let count1 = match_char(line, i % WIDTH, TREE);
-
-            // three
             let count2 = match_char(line, i * 3 % WIDTH, TREE);
-
-            // five
             let count3 = match_char(line, i * 5 % WIDTH, TREE);
-
-            // seven
             let count4 = match_char(line, i * 7 % WIDTH, TREE);
-
-            // down 2
             let count5: usize = if i % 2 == 1 {
                 0
             } else {
