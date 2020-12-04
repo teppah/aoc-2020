@@ -7,7 +7,6 @@ pub fn toboggan_trajectory() {
     const PATH: char = '.';
     const WIDTH: usize = 31;
 
-    let mut index: usize = 0;
     let mut count =
         file.lines()
             .zip((0..WIDTH).cycle().step_by(3))
