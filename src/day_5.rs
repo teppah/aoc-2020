@@ -2,6 +2,8 @@ use std::fs;
 use itertools::Itertools;
 use std::cmp::Ordering;
 use std::fmt::{self, Display, Formatter};
+use std::collections::{HashMap, HashSet};
+use std::hash::{Hash, Hasher};
 
 #[derive(Eq, Debug)]
 pub struct Seat<'a> {
@@ -81,17 +83,34 @@ impl PartialEq for Seat<'_> {
     }
 }
 
+impl Hash for Seat<'_> {
+    fn hash<H: Hasher>(&self, state: &mut H) {
+        state.write_usize(self.seat_id);
+    }
+}
+
 
 pub fn binary_boarding() {
     let input = fs::read_to_string("inputs/5.txt")
         .unwrap();
-    let max = input.lines()
+    let values: HashMap<usize, Seat> = input.lines()
         .map(|line| {
             let (row_str, col_str) = line.split_at(7);
             Seat::from_str(row_str, col_str)
         })
-        .max()
-        .unwrap()
-        ;
-    println!("max is: {}", max);
+        .map(|seat| (seat.seat_id, seat))
+        .collect();
+    let max = values.iter().max().unwrap();
+    println!("Max is: {}", max.1);
+
+
+    for id in 1..=*max.0 {
+        let higher = values.get(&(id + 1));
+        let lower = values.get(&(id - 1));
+        let mine = values.get(&id);
+        if let (None, Some(l), Some(h)) = (mine, lower, higher) {
+            println!("My seat_id is: {}", id);
+            println!("Above: {}, under: {}\n", h, l);
+        }
+    }
 }
