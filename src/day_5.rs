@@ -20,15 +20,10 @@ impl Display for Seat<'_> {
     }
 }
 
-enum Pos {
-    UPPER,
-    LOWER,
-}
-
 impl<'a> Seat<'a> {
     pub fn from_str(row_partition: &'a str, col_partition: &'a str) -> Seat<'a> {
-        let row = Seat::find_num(0, 127, row_partition);
-        let col = Seat::find_num(0, 7, col_partition);
+        let row = Seat::find_num(row_partition);
+        let col = Seat::find_num(col_partition);
         let seat_id = row * 8 + col;
         Seat {
             row_partition,
@@ -39,29 +34,21 @@ impl<'a> Seat<'a> {
         }
     }
 
-    fn get_half(c: char) -> Pos {
-        match c {
-            'F' | 'L' => Pos::LOWER,
-            'B' | 'R' => Pos::UPPER,
-            _ => panic!("Unknown letter: {}", c)
-        }
-    }
-
-    fn find_num(lower: usize, higher: usize, s: &str) -> usize {
-        let mut lower = lower;
-        let mut higher = higher;
-        for c in s.chars() {
-            let mid = (lower + higher) as f64 / 2f64;
-            match Seat::get_half(c) {
-                Pos::LOWER => {
-                    higher = mid.floor() as usize;
-                }
-                Pos::UPPER => {
-                    lower = mid.ceil() as usize;
-                }
-            }
-        }
-        lower
+    fn find_num(s: &str) -> usize {
+        let mut val: usize = s.chars()
+            .rev()
+            .enumerate()
+            .map(|(i, c, )| {
+                return if c == 'B' || c == 'R' {
+                    if i == 0 {
+                        1
+                    } else {
+                        2 << i - 1
+                    }
+                } else { 0 };
+            })
+            .sum();
+        val
     }
 }
 
