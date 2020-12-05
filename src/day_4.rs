@@ -2,7 +2,7 @@ use std::fs;
 use std::collections::{HashSet, HashMap};
 use regex::Regex;
 use itertools::Itertools;
-
+use std::thread;
 
 pub fn passport_processing() {
     let input = fs::read_to_string("inputs/4.txt").unwrap();
@@ -34,7 +34,6 @@ pub fn passport_processing() {
                     split
                 })
                 .collect();
-            // println!("lol: -- {:?}", fields);
             fields
         })
         .filter(|val| {
@@ -44,56 +43,28 @@ pub fn passport_processing() {
     println!("Valid: {}", second_valid);
 }
 
-fn check_valid(vals: &HashMap<&str, &str>) -> bool {
-    let mut valid: usize = 0;
+fn check_valid(vals: &HashMap<&str, &str>) -> bool
+{
+    type F = for<'r> fn(&'r str) -> bool;
     const EXPECTED_VALID: usize = 7;
-    for (name, val) in vals.iter() {
-        match *name {
-            "byr" => {
-                if !valid_byr(*val) {
-                    return false;
-                }
-                valid += 1;
-            }
-            "iyr" => {
-                if !valid_iyr(*val) {
-                    return false;
-                }
-                valid += 1;
-            }
-            "eyr" => {
-                if !valid_eyr(*val) {
-                    return false;
-                }
-                valid += 1;
-            }
-            "hgt" => {
-                if !valid_hgt(*val) {
-                    return false;
-                }
-                valid += 1;
-            }
-            "hcl" => {
-                if !valid_hcl(*val) {
-                    return false;
-                }
-                valid += 1;
-            }
-            "ecl" => {
-                if !valid_ecl(*val) {
-                    return false;
-                }
-                valid += 1;
-            }
-            "pid" => {
-                if !valid_pid(*val) {
-                    return false;
-                }
-                valid += 1;
-            }
-            _ => ()
-        }
-    }
+    let validators: HashMap<&str, F> =
+        vec![
+            ("byr", valid_byr as F),
+            ("iyr", valid_iyr),
+            ("eyr", valid_eyr),
+            ("hgt", valid_hgt),
+            ("hcl", valid_hcl),
+            ("ecl", valid_ecl),
+            ("pid", valid_pid)
+        ].into_iter()
+            .collect();
+    let valid: usize = vals.iter()
+        .filter(|(k, v)| {
+            return if let Some(validator) = validators.get(*k) {
+                validator(*v)
+            } else { false };
+        })
+        .count();
     return valid == EXPECTED_VALID;
 }
 
@@ -101,9 +72,9 @@ fn valid_byr(val: &str) -> bool {
     if val.len() != 4 {
         return false;
     }
-    let parse: Result<usize, _> = val.parse();
+    let parse: Result<i32, _> = val.parse();
     return if let Ok(number) = parse {
-        number >= 1920 && number <= 2002
+        (1920..=2002).contains(&number)
     } else {
         false
     };
@@ -113,9 +84,9 @@ fn valid_iyr(val: &str) -> bool {
     if val.len() != 4 {
         return false;
     }
-    let parse: Result<usize, _> = val.parse();
+    let parse: Result<i32, _> = val.parse();
     return if let Ok(number) = parse {
-        number >= 2010 && number <= 2020
+        (2010..=2020).contains(&number)
     } else {
         false
     };
@@ -125,23 +96,23 @@ fn valid_eyr(val: &str) -> bool {
     if val.len() != 4 {
         return false;
     }
-    let parse: Result<usize, _> = val.parse();
+    let parse: Result<i32, _> = val.parse();
     return if let Ok(number) = parse {
-        number >= 2020 && number <= 2030
+        (2020..=2030).contains(&number)
     } else {
         false
     };
 }
 
 fn valid_hgt(val: &str) -> bool {
-    let parsed: usize = match val[..val.len() - 2].parse() {
+    let parsed: i32 = match val[..val.len() - 2].parse() {
         Ok(val) => val,
         Err(_) => { return false; }
     };
     return if val.contains("cm") {
-        parsed >= 150 && parsed <= 193
+        (150..=193).contains(&parsed)
     } else if val.contains("in") {
-        parsed >= 59 && parsed <= 76
+        (59..=76).contains(&parsed)
     } else {
         false
     };
