@@ -103,14 +103,24 @@ pub fn binary_boarding() {
     let max = values.iter().max().unwrap();
     println!("Max is: {}", max.1);
 
-
     for id in 1..=*max.0 {
         let higher = values.get(&(id + 1));
         let lower = values.get(&(id - 1));
         let mine = values.get(&id);
         if let (None, Some(l), Some(h)) = (mine, lower, higher) {
             println!("My seat_id is: {}", id);
-            println!("Above: {}, under: {}\n", h, l);
+            println!("Above: {}, under: {}", h, l);
         }
     }
+
+    let (mine, before, after) = (1..*max.0)
+        .map(|i|
+            (i, values.get(&i), values.get(&(i - 1)), values.get(&(i + 1)))
+        )
+        .filter(|(_, mine, before, after)|
+            mine.is_none() && before.is_some() && after.is_some())
+        .map(|(i, _, before, after)|
+            (i, before.unwrap(), after.unwrap()))
+        .next().unwrap();
+    println!("Functional: id={}", mine);
 }
