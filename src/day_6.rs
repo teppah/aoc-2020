@@ -15,4 +15,20 @@ pub fn custom_customs() {
         })
         .sum();
     println!("Total of counts: {}", count);
+
+    let total_common: usize = lines.split("\n\n")
+        .map(|entry| {
+            entry.lines()
+                .map(|line| {
+                    line.chars().collect::<HashSet<char>>()
+                })
+                .fold1(|mut set1, set2| {
+                    set1.retain(|c| set2.contains(c));
+                    set1
+                })
+                .unwrap()
+        })
+        .map(|common| common.len())
+        .sum();
+    println!("Total common: {}", total_common);
 }
