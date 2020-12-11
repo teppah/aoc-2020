@@ -5,6 +5,7 @@ use aoc_2020::day_4::passport_processing;
 use aoc_2020::day_5::binary_boarding;
 use aoc_2020::day_6::custom_customs;
 use aoc_2020::day_7::handy_haversacks;
+use aoc_2020::day_8::handheld_halting;
 
 fn main() {
     // report_repair();
@@ -13,6 +14,6 @@ fn main() {
     // passport_processing();
     // binary_boarding();
     // custom_customs();
-
-    handy_haversacks();
+    // handy_haversacks();
+    handheld_halting();
 }
