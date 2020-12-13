@@ -7,6 +7,7 @@ use aoc_2020::day_6::custom_customs;
 use aoc_2020::day_7::handy_haversacks;
 use aoc_2020::day_8::handheld_halting;
 use aoc_2020::day_9::encoding_error;
+use aoc_2020::day_10::adapter_array;
 
 fn main() {
     // report_repair();
@@ -17,5 +18,6 @@ fn main() {
     // custom_customs();
     // handy_haversacks();
     // handheld_halting();
-    encoding_error();
+    // encoding_error();
+    adapter_array();
 }
